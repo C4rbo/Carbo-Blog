@@ -5,7 +5,7 @@ import { formatDate } from 'pliny/utils/formatDate'
 import SocialIcon from '@/components/social-icons'
 import Terminal from '@/components/Terminal'
 
-const MAX_DISPLAY = 3
+const MAX_DISPLAY = 0
 
 export default function Home({ posts }) {
   return (
@@ -27,8 +27,6 @@ export default function Home({ posts }) {
                 <SocialIcon kind="x" href={siteMetadata.x} size={6} />
               </div>
             </div>
-
-            {/* {inserisci terminale} */}
             <Terminal />
           </div>
         </div>
@@ -84,7 +82,7 @@ export default function Home({ posts }) {
           })}
         </ul>
       </div>
-      {posts.length > MAX_DISPLAY && (
+      {/* {posts.length > MAX_DISPLAY && (
         <div className="flex justify-end text-base leading-6 font-medium">
           <Link
             href="/blog"
@@ -94,7 +92,7 @@ export default function Home({ posts }) {
             All Posts &rarr;
           </Link>
         </div>
-      )}
+      )} */}
     </>
   )
 }

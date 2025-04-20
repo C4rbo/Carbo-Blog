@@ -1,4 +1,3 @@
-// components/Terminal.tsx
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
@@ -18,23 +17,22 @@ export default function Terminal() {
   const terminalRef = useRef<HTMLDivElement>(null)
 
   const terminalLines: TerminalLine[] = [
-    { text: 'Welcome to Carbo Terminal [Version 1.0.0]', delay: 500 },
-    { text: '(c) 2023 Carbo. All rights reserved.', delay: 300 },
+    { text: 'Welcome to Carbo Terminal', delay: 500 },
+    { text: '(c) 2025 Carbo. All rights reserved.', delay: 300 },
     { text: '', delay: 500 },
     { text: 'user@carbo:~$ whoami', prompt: true, typingSpeed: 30 },
     { text: 'carbo', delay: 200 },
     { text: 'user@carbo:~$ uname -a', prompt: true, typingSpeed: 20 },
     {
-      text: 'Linux carbo-terminal 5.15.0-76-generic #83-Ubuntu SMP Thu Jun 15 19:16:32 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux',
+      text: 'Linux carbo-terminal 5.15.0-76-generic #83-Ubuntu SMP Thu March 15 19:16:32 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux',
       delay: 100,
     },
     { text: 'user@carbo:~$ skills --show', prompt: true, typingSpeed: 15 },
-    { text: 'Languages: Python, JavaScript/TypeScript, C++, Rust', delay: 50 },
-    { text: 'Frameworks: Next.js, React, Node.js, Django', delay: 50 },
-    { text: 'Security: Ethical Hacking, Penetration Testing, Cryptography', delay: 50 },
-    { text: 'Tools: Git, Docker, Wireshark, Metasploit', delay: 50 },
+    { text: 'Languages: Python, Java, JavaScript/TypeScript, C/C++, SQL, MYSQL', delay: 50 },
+    { text: 'Frameworks: Next.js, React', delay: 50 },
+    { text: 'Software Developer and Cybersecurity enthusiast', delay: 50 },
+    { text: 'Tools: Git, Docker, Wireshark, BurpSuite', delay: 50 },
     { text: 'user@carbo:~$ cat interests.txt', prompt: true, typingSpeed: 25 },
-    { text: 'Cybersecurity Research', delay: 30 },
     { text: 'Open Source Development', delay: 30 },
     { text: 'Reverse Engineering', delay: 30 },
     { text: 'CTF Competitions', delay: 30 },
@@ -55,7 +53,6 @@ export default function Terminal() {
       let charIndex = 0
 
       if (line.text === '') {
-        // Handle empty lines (just add delay)
         setTimeout(() => {
           setCurrentLineIndex(currentLineIndex + 1)
         }, line.delay || 500)
@@ -69,7 +66,6 @@ export default function Terminal() {
         } else {
           clearInterval(typeWriter)
 
-          // Add the complete line to history
           setLines((prev) => [
             ...prev,
             {
@@ -80,7 +76,6 @@ export default function Terminal() {
 
           setDisplayText('')
 
-          // Move to next line after delay
           setTimeout(() => {
             setCurrentLineIndex(currentLineIndex + 1)
           }, line.delay || 100)
@@ -92,49 +87,46 @@ export default function Terminal() {
   }, [currentLineIndex])
 
   return (
-    <div className="mx-auto mt-10 w-full max-w-3xl shadow-2xl">
-      {/* Terminal Header */}
-      <div className="terminal-header flex items-center justify-between rounded-t-lg bg-gray-800 px-4 py-2">
+    <div className="mx-auto mt-10 w-full max-w-3xl overflow-hidden rounded-lg border border-gray-800 bg-gray-950/80 shadow-2xl backdrop-blur-sm">
+      <div className="flex items-center justify-between border-b border-gray-800/50 bg-gray-900/50 px-4 py-2">
         <div className="flex items-center space-x-2">
-          <div className="h-3 w-3 cursor-pointer rounded-full bg-red-500 hover:bg-red-700"></div>
-          <div className="h-3 w-3 cursor-pointer rounded-full bg-yellow-500 hover:bg-yellow-700"></div>
-          <div className="h-3 w-3 cursor-pointer rounded-full bg-green-500 hover:bg-green-700"></div>
+          <div className="h-3 w-3 rounded-full bg-red-500/60 transition-colors hover:bg-red-500/80"></div>
+          <div className="h-3 w-3 rounded-full bg-yellow-500/60 transition-colors hover:bg-yellow-500/80"></div>
+          <div className="h-3 w-3 rounded-full bg-green-500/60 transition-colors hover:bg-green-500/80"></div>
         </div>
-        <div className="font-mono text-sm text-gray-300">carbo@terminal: ~</div>
-        <div className="w-12"></div> {/* Spacer for flex alignment */}
+        <div className="font-mono text-xs tracking-tight text-gray-400/80">carbo@terminal:~</div>
+        <div className="w-12"></div>
       </div>
 
-      {/* Terminal Body */}
       <div
         ref={terminalRef}
-        className="terminal-body h-96 overflow-auto rounded-b-lg bg-gray-900 p-4 font-mono text-green-400"
+        className="h-96 overflow-auto bg-gray-950/70 p-4 font-mono text-sm text-gray-200/90"
       >
-        {/* Initial welcome message */}
-        <div className="mb-2 text-cyan-300">
+        <div className="mb-2 text-gray-400/80 italic">
           Last login: {new Date().toLocaleString()} from 127.0.0.1
         </div>
 
-        {/* Display previous lines */}
         {lines.map((line, index) => (
-          <div key={index} className={`mb-1 ${line.prompt ? 'text-purple-400' : 'text-green-400'}`}>
-            {line.prompt && <span className="text-yellow-400">➜</span>} {line.text}
+          <div key={index} className={`mb-1 ${line.prompt ? 'text-gray-50' : 'text-gray-300/90'}`}>
+            {line.prompt && <span className="mr-1.5 font-semibold text-green-400/90">➜</span>}
+            {line.text}
           </div>
         ))}
 
-        {/* Current typing line */}
         {displayText && (
           <div
-            className={`mb-1 ${terminalLines[currentLineIndex]?.prompt ? 'text-purple-400' : 'text-green-400'}`}
+            className={`mb-1 ${terminalLines[currentLineIndex]?.prompt ? 'text-gray-50' : 'text-gray-300/90'}`}
           >
-            {terminalLines[currentLineIndex]?.prompt && <span className="text-yellow-400">➜</span>}{' '}
+            {terminalLines[currentLineIndex]?.prompt && (
+              <span className="mr-1.5 font-semibold text-green-400/90">➜</span>
+            )}
             {displayText}
             {terminalLines[currentLineIndex]?.blink && (
-              <span className="ml-1 animate-pulse">█</span>
+              <span className="ml-0.5 animate-pulse text-green-400/80">▮</span>
             )}
           </div>
         )}
 
-        {/* Empty line to ensure scroll stays at bottom */}
         <div className="h-1"></div>
       </div>
     </div>
