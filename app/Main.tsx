@@ -22,9 +22,9 @@ export default function Home({ posts }) {
             <div className="mt-5 flex flex-col items-center">
               <div className="mb-3 flex space-x-4">
                 <SocialIcon kind="github" href={siteMetadata.github} size={6} />
-                <SocialIcon kind="youtube" href={siteMetadata.youtube} size={6} />
+                <SocialIcon kind="discord" href={siteMetadata.discord} size={6} />
                 <SocialIcon kind="linkedin" href={siteMetadata.linkedin} size={6} />
-                <SocialIcon kind="x" href={siteMetadata.x} size={6} />
+                <SocialIcon kind="tiktok" href={siteMetadata.tiktok} size={6} />
               </div>
             </div>
             <Terminal />
