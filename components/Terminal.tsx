@@ -14,6 +14,7 @@ export default function Terminal() {
   const [lines, setLines] = useState<{ text: string; prompt?: boolean }[]>([])
   const [displayText, setDisplayText] = useState('')
   const [currentLineIndex, setCurrentLineIndex] = useState(0)
+  const [lastLogin, setLastLogin] = useState<string | null>(null)
   const terminalRef = useRef<HTMLDivElement>(null)
 
   const terminalLines: TerminalLine[] = [
@@ -38,6 +39,10 @@ export default function Terminal() {
     { text: 'CTF Competitions', delay: 30 },
     { text: 'user@carbo:~$ _', prompt: true, blink: true, typingSpeed: 20 },
   ]
+
+  useEffect(() => {
+    setLastLogin(new Date().toLocaleString())
+  }, [])
 
   useEffect(() => {
     const terminal = terminalRef.current
@@ -102,9 +107,9 @@ export default function Terminal() {
         ref={terminalRef}
         className="h-96 overflow-auto bg-gray-950/70 p-4 font-mono text-sm text-gray-200/90"
       >
-        <div className="mb-2 text-gray-400/80 italic">
-          Last login: {new Date().toLocaleString()} from 127.0.0.1
-        </div>
+        {lastLogin && (
+          <div className="mb-2 text-gray-400/80 italic">Last login: {lastLogin} from 127.0.0.1</div>
+        )}
 
         {lines.map((line, index) => (
           <div key={index} className={`mb-1 ${line.prompt ? 'text-gray-50' : 'text-gray-300/90'}`}>

