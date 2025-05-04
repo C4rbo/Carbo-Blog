@@ -35,7 +35,6 @@ export default function Terminal() {
     { text: 'Tools: Git, Docker, Wireshark, BurpSuite', delay: 50 },
     { text: 'user@carbo:~$ cat interests.txt', prompt: true, typingSpeed: 25 },
     { text: 'Open Source Development', delay: 30 },
-    { text: 'Reverse Engineering', delay: 30 },
     { text: 'CTF Competitions', delay: 30 },
     { text: 'user@carbo:~$ _', prompt: true, blink: true, typingSpeed: 20 },
   ]

@@ -5,7 +5,7 @@ import { formatDate } from 'pliny/utils/formatDate'
 import SocialIcon from '@/components/social-icons'
 import Terminal from '@/components/Terminal'
 
-const MAX_DISPLAY = 0
+const MAX_DISPLAY = 3
 
 export default function Home({ posts }) {
   return (
@@ -24,7 +24,7 @@ export default function Home({ posts }) {
                 <SocialIcon kind="github" href={siteMetadata.github} size={6} />
                 <SocialIcon kind="discord" href={siteMetadata.discord} size={6} />
                 <SocialIcon kind="linkedin" href={siteMetadata.linkedin} size={6} />
-                <SocialIcon kind="tiktok" href={siteMetadata.tiktok} size={6} />
+                {/* <SocialIcon kind="tiktok" href={siteMetadata.tiktok} size={6} /> */}
               </div>
             </div>
             <Terminal />
@@ -82,7 +82,7 @@ export default function Home({ posts }) {
           })}
         </ul>
       </div>
-      {/* {posts.length > MAX_DISPLAY && (
+      {posts.length > MAX_DISPLAY && (
         <div className="flex justify-end text-base leading-6 font-medium">
           <Link
             href="/blog"
@@ -92,7 +92,7 @@ export default function Home({ posts }) {
             All Posts &rarr;
           </Link>
         </div>
-      )} */}
+      )}
     </>
   )
 }

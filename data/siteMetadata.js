@@ -10,7 +10,6 @@ const siteMetadata = {
   siteLogo: `${process.env.BASE_PATH || ''}/static/images/logo.png`,
   socialBanner: `${process.env.BASE_PATH || ''}/static/images/twitter-card.png`,
   github: 'https://github.com/C4rbo',
-  tiktok: 'https://www.tiktok.com/@carbodev',
   linkedin: 'https://www.linkedin.com/in/alessio-carbonara-675a1a295/',
   discord: 'https://discord.com/users/315450580342538251',
   locale: 'en-US',
